@@ -1,0 +1,16 @@
+{
+    "api": {
+        "base_url": "https://free.intelx.io",
+        "timeout": 15,
+        "max_retries": 5,
+        "backoff_factor": 2,
+        "request_delay": 1
+    },
+    "paths": {
+        "input": "email_list.csv",
+        "output": "output_result.csv"
+    },
+    "logging": {
+        "level": "INFO"
+    }
+}
