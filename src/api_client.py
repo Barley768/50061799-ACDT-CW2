@@ -19,10 +19,10 @@ class RateLimitError(APIError):
 
 
 class IntelligenceXClient:
-    """Client for the Intelligence X phonebook API."""
+    """Client for the Intelligence X free "intelligent" API."""
 
-    SEARCH_ENDPOINT = "/phonebook/search"
-    RESULT_ENDPOINT = "/phonebook/search/result"
+    SEARCH_ENDPOINT = "/intelligent/search"
+    RESULT_ENDPOINT = "/intelligent/search/result"
 
     def __init__(
         self,
@@ -76,7 +76,6 @@ class IntelligenceXClient:
         payload = {
             "term": term,
             "buckets": [],
-            "lookuplevel": 0,
             "maxresults": 100,
             "timeout": 0,
             "datefrom": "",
@@ -95,8 +94,10 @@ class IntelligenceXClient:
         if not response:
             return []
         sources = []
-        for item in response.json().get("selectors", []):
-            val = item.get("selectorvalue", "")
+        for item in response.json().get("records", []):
+            bucket = item.get("bucket", "")
+            name = item.get("name", "")
+            val = f"{bucket} - {name}" if bucket and name else bucket or name
             if val and val not in sources:
                 sources.append(val)
         return sources

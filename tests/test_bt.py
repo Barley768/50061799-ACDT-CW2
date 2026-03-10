@@ -22,12 +22,12 @@ class TestEmailValidation(unittest.TestCase):
 
     def test_valid_emails(self):
         for e in self.VALID:
-            with self.subTest(email=0): 
+            with self.subTest(email=e): 
                 self.assertTrue(is_valid_email(e))
     
     def test_invalid_emails(self):
         for e in self.INVALID:
-            with self.subTest(email=0): 
+            with self.subTest(email=e): 
                 self.assertFalse(is_valid_email(e))
 
 class TestReadEmailCsv(unittest.TestCase):
@@ -38,11 +38,11 @@ class TestReadEmailCsv(unittest.TestCase):
         self.tmp.cleanup()
     
     def test_read_standard_column(self):
-        f = self.p/"e.csv"; f.write_text("email\nread@test.com\n")
+        f = self.p/"e.csv"; f.write_text("email\nread@test.com\n", encoding="utf-8")
         self.assertEqual(read_email_csv(f), ["read@test.com"])
 
     def test_skips_blank_rows(self):
-        f = self.p/"e.csv"; f.write_text("email\na@test.com\n\nc@test.com\n")
+        f = self.p/"e.csv"; f.write_text("email\na@test.com\n\nc@test.com\n", encoding="utf-8")
         self.assertEqual(len(read_email_csv(f)),2)
     
     def test_raises_on_missing_file(self):
@@ -50,7 +50,7 @@ class TestReadEmailCsv(unittest.TestCase):
             read_email_csv("/no/file.csv")
     
     def test_raises_on_empty_file(self):
-        f = self.p/"e.csv"; f.write_text("")
+        f = self.p/"e.csv"; f.write_text("", encoding="utf-8")
         with self.assertRaises(ValueError): read_email_csv(f)
 
 class TestWriteResultsCsv(unittest.TestCase):
@@ -63,7 +63,8 @@ class TestWriteResultsCsv(unittest.TestCase):
     def test_writes_correct_columns(self):
         out = self.p/"o.csv"
         write_results_csv([BreachResult("a@b.com", True,["src"])], out)
-        rows = list(csv.DictReader(out.open()))
+        with out.open(encoding="utf-8") as fh:
+            rows = list(csv.DictReader(fh))
         self.assertEqual(rows[0]["breached"], "True")
         self.assertEqual(rows[0]["site_where_breached"], "src")
 
@@ -123,12 +124,13 @@ class TestAPIClientRetry(unittest.TestCase):
     def test_429_triggers_retry(self):
         c = IntelligenceXClient(api_key="k", max_retries=3, backoff_factor=0.01)
         r429 = MagicMock(status_code=429)
-        r200 = MagicMock(status_code=200); r200.json.return_value={"id":"abd"}
+        r200 = MagicMock(status_code=200); r200.json.return_value={"id":"abc"}
         rres = MagicMock(status_code=200)
-        rres.json.return_value={"selectors":
-                                [{"selectorvalue":"b.example.com"}]}
+        rres.json.return_value={
+            "records": [{"bucket": "pastes", "name": "b.example.com"}]
+        }
         with patch.object(c._session,"request",side_effect=[r429, r200, rres]), patch("time.sleep"):
-            self.assertEqual(c.search_email("u@t.com"), ["b.example.com"])
+            self.assertEqual(c.search_email("u@t.com"), ["pastes - b.example.com"])
     
     def test_auth_error_raises(self):
         c = IntelligenceXClient(api_key="bad", backoff_factor=0.01)
@@ -150,13 +152,14 @@ class TestEndToEnd(unittest.TestCase):
 
     def test_full_pipeline(self):
         inp = self.p/"i.csv"
-        inp.write_text("email\nneil@example.com\njane@test.co.uk\nnotvalid\n")
+        inp.write_text("email\nneil@example.com\nfiona@company.net\nnotvalid\n", encoding="utf-8")
         out = self.p/"o.csv"
         emails = read_email_csv(inp)
         results, stats = BreachChecker(
             api_client=ExampleBreachClient(), request_delay=0).check_emails(emails)
         write_results_csv(results, out)
-        rows = list(csv.DictReader(out.open()))
+        with out.open(encoding="utf-8") as fh:
+            rows = list(csv.DictReader(fh))
         self.assertEqual(len(rows), 3)
         self.assertEqual(stats.total_breached, 1)
         self.assertEqual(stats.total_clean, 1)

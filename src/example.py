@@ -13,12 +13,12 @@ logger = logging.getLogger(__name__)
 
 # Demo breach data
 _BREACH_SEED: dict[str, list[str]] = {
-    "neil@example.com": ["facebook.com-2025", "serebii.com-2012"]
-    , "jane@test.co.uk": ["twitter.com-2028", "instagram.com-2024"]
+    "neil@example.com": ["facebook.com-2025", "serebii.com-2012", "twitter.com-2018", "github.com-2022"]
+    , "jane@test.co.uk": ["twitter.com-2018", "instagram.com-2024", "facebook.com-2025"]
     , "fiona@company.net": []
     , "william@william.plus.uk": []
-    , "joe@example.org": ["tesco.co.uk-2017"]
-    , "dee@doug.io": ["dnd3-5.wikidot.com-2026", "foundryvtt.com-2025", "foundryvtt.com-2026", "youtube.com-2015"]
+    , "joe@example.org": ["tesco.co.uk-2017", "facebook.com-2025", "nikon.com-2006"]
+    , "dee@doug.io": ["dnd3-5.wikidot.com-2026", "foundryvtt.com-2025", "foundryvtt.com-2026", "youtube.com-2015", "facebook.com-2025", "twitter.com-2019"]
 }
 
 class ExampleBreachClient:

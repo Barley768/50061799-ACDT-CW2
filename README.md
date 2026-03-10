@@ -17,6 +17,7 @@ This project is being developed to meet the following criteria:
 
 
 This assessment has two components:
+    
     • Part 1 (60%) – Technical Build: Design and implement a production-ready Python tool that screens customer identifiers against breach-intelligence sources via APIs; produce actionable outputs, testing artefacts, and professional documentation.
 
     • Part 2 (40%) – Professional Report: A management-ready DevOps report that explains API-driven automation practices and makes policy/tooling recommendations for Antrim Logistics Company (ALC).
@@ -67,7 +68,7 @@ The work targets Level-6 performance by requiring justification of design decisi
 
 
 ## APIs Used:
-1. 
+1. IntelligenceX Search API - https://help.intelx.io/docs/api/
 
 ## To get setup:
 1. Clone the Repo: git clone 
@@ -75,4 +76,15 @@ The work targets Level-6 performance by requiring justification of design decisi
         python -m venv .venv
         .venv\Scripts\activate
 3. Install dependencies: `pip install -r requirements.txt`
-4. Run the script: `python Project\main.py`
+
+## To run the script:
+1. Navigate to the project root in terminal
+2. Activate venv:
+        .venv\Scripts\activate
+3. run main.py (pass argument --dry-run to test without using API credits)
+
+Examples:
+1. Test without using API credits:
+        python -m src.main --dry-run
+2. Run process using API credits:
+        python -m src.main

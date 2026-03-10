@@ -56,7 +56,11 @@ def parse_args(argv=None):
     parser.add_argument("--input", default=None)
     parser.add_argument("--output", default=None)
     parser.add_argument("--config", default="config/config.json")
-    parser.add_argument("--dry-run", default="store_true")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Use example mock client; does not use API calls",
+    )
     parser.add_argument("--log-level", default=None)
     return parser.parse_args(argv)
 
@@ -71,7 +75,7 @@ def print_summary(stats: SummaryStats):
     print(f" Invalid        : {stats.total_invalid}")
     print(f" Breach rate    : {stats.breach_rate:.1f}%")
     if stats.source_counts:
-        print("\n Top breach sources:")
+        print("\n Top 10 breach sources:")
         for src, count in stats.top_sources(10):
             print(f"    {count:>4}  {src}")
     print("=" * 60 + "\n")
@@ -114,8 +118,14 @@ def main(argv=None) -> int:
         return 0
 
     def progress(idx, total, result):
-        status = "BREACHED" if result.breached else "CLEAN  "
-        print(f"    [{idx:>3}/{total}] {status} {result.email_address}")
+        if "INVALID_EMAIL" in result.breach_sources:
+            status="INVALID "
+        elif result.breached:
+            status = "BREACHED" 
+        else:
+            status = "CLEAN   "
+        width = len(str(total))
+        print(f"    [{idx:>{width}}/{total}] {status} {result.email_address}")
 
     checker = BreachChecker(
         api_client=client,

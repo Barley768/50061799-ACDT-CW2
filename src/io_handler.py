@@ -16,7 +16,7 @@ def read_email_csv(filepath) -> list[str]:
         raise FileNotFoundError(f"Input file not found: {path}")
     emails = []
     headers = {"email", "email_address", "e-mail", "emailaddress"}
-    with path.open(newline="", encoding="utf-8-sig") as fh:
+    with path.open(newline="", encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
         if reader.fieldnames is None:
             raise ValueError("CSV file is empty or has no header row.")
@@ -27,10 +27,10 @@ def read_email_csv(filepath) -> list[str]:
         if col is None:
             col = reader.fieldnames[0]
             logger.warning("No email column found; using first column %r.", col)
-            for row in reader:
-                value = row.get(col, "").strip()
-                if value:
-                    emails.append(value)
+        for row in reader:
+            value = row.get(col, "").strip()
+            if value:
+                emails.append(value)
     logger.info("Loaded %d email(s) from %s", len(emails), path)
     return emails
 
