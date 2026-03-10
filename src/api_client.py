@@ -1,8 +1,9 @@
 """api_client.py - Intelligence X API client with retry/backoff."""
 
 from __future__ import annotations
-import logging, time, uuid
-from typing import Any
+import logging
+import time
+import uuid
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry

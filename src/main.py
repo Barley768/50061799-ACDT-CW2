@@ -1,7 +1,10 @@
 """main.py - CLI entry point for the ALC Breach Screening Tool."""
 
 from __future__ import annotations
-import argparse, logging, os, sys
+import argparse
+import logging
+import os
+import sys
 from pathlib import Path
 import json
 from dotenv import load_dotenv
@@ -119,9 +122,9 @@ def main(argv=None) -> int:
 
     def progress(idx, total, result):
         if "INVALID_EMAIL" in result.breach_sources:
-            status="INVALID "
+            status = "INVALID "
         elif result.breached:
-            status = "BREACHED" 
+            status = "BREACHED"
         else:
             status = "CLEAN   "
         width = len(str(total))
