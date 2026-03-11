@@ -68,7 +68,7 @@ The work targets Level-6 performance by requiring justification of design decisi
 
 This is a python CLI (Command Line Interface) application developed for use by ALC (Antrim Logistics Company).
 The goal of this application is to screen ALC customer email addresses for any known data breaches they may have been a part of. 
-This application reads in a single "email_list.csv" file which holds the email addresses to be screened, and by using the Intelligence X "search" API endpoint, returns any known breach records and writes it to a "output_results.csv" file. A real time summary of the results is printed within the terminal as the application processes the email addresses within email_list.csv, and provides summary statistics once finished, including a count of emails screened, the rate of breaches, and top identified breach sources.
+This application reads in a single "email_list.csv" file which holds the email addresses to be screened, and by using the Intelligence X "search" API endpoint, returns any known breach records and writes it to a "output_result.csv" file. A real time summary of the results is printed within the terminal as the application processes the email addresses within email_list.csv, and provides summary statistics once finished, including a count of emails screened, the rate of breaches, and top identified breach sources.
 
 This application is designed with production use in mind, making use of docker containerisation and GitHub CI pipeline for automated testing on commits to the source control repository.
 
@@ -152,7 +152,7 @@ No changes to any other files would be required.
 | request_delay  | 1                        | Delay between request calls                   |
 | input          | email_list.csv           | Name of input file                            |
 | output         | output/output_result.csv | Output location for results file              |
-| logging.level  | INFO                     | DEBUG | INFO | WARNING | ERROR                |
+| logging.level  | INFO                     | DEBUG / INFO / WARNING / ERROR                |
 
 ## Running the Application:
 ### Running Locally
@@ -256,10 +256,11 @@ python 3.11 or higher is installed for local machine runs, or docker is installe
 ALC has the legal authority to be using and screening the email addresses included in the email_list.csv file
 
 ## Ethics and GDPR
-This application should only ever ben used to screen email addresses that the company ALC has legal reason to screen. This application should not be run against unauthorised email addresses.
+This application should only ever be used to screen email addresses that the company ALC has legal reason to screen. This application should not be run against unauthorised email addresses.
 
 ALC has a lawful basis for processing this PII under the GDPR Article 6: "Lawfulness of processing".
-Under the GDPR Article 33, if there is a significant breach rate, ALC will have to notify the users within 72 hours.
+
+Under the GDPR Article 33, if there is a significant breach rate, ALC may be required to notify the Information Commissioner's Office (ICO) within 72 hours of becoming aware of the breach.
 
 This application only processes the email addresses to minimise the PII (Personally Identifiable Information) being processed or stored.
 
