@@ -114,6 +114,18 @@ This application is designed with production use in mind, making use of docker c
 ## APIs Used:
 1. IntelligenceX Search API - https://help.intelx.io/docs/api/
 
+Intelligence X was chosen for the API as it provides a free tier for accounts for prototyping / testing purposes, lowering cost and barrier to entry. 
+This has allowed for agile rapid development, quickly developing, testing and iterating upon the application as required. 
+Additionally, for future scoping, Intelligence X is known for searching beyond just breach-specific data sources, such as web archives, document sharing platforms and the darknet. 
+As a result, should this application be brought forward to production the implementation for Intelligence X is already in place for the free tier, and can be easily updated for the premium plan. 
+This API is a standard REST API, meaning that it is easy to implement and uses a simple header-based API Key authentication. 
+Intelligence X also keeps high quality documentation available to help with the development and understanding. 
+Ideally on the premium plan we would switch from using "search" endpoint, and use the premium exclusive "phonebook" endpoint, as this returns cleaner, more focused data.
+
+Another API was considered for use, being Have I Been Pwned (HIBP). While this API returns more focused data, it does not include a free tier. 
+it was decided that for future proofing, Intelligence X was preferred at this stage. 
+Ideally, both API's will be used to cross reference results and get a more robust search by making use of various independant searching APIs.
+
 ## To get setup:
 1. Clone the latest master branch from the GitHub Repo: git clone https://github.com/Barley768/50061799-ACDT-CW2
 2. Create virtual environment:
@@ -125,20 +137,22 @@ This application is designed with production use in mind, making use of docker c
 5. Replace the dummy IX_API_KEY in .env with your actual API key
 
 ## Configuration
-    "api": {
-            "base_url": "https://free.intelx.io",   # API url used for calls
-            "timeout": 15,                          # Seconds per request
-            "max_retries": 5,                       # Max number of retry attempts in case of error
-            "backoff_factor": 2,                    # Delay between retry attempts
-            "request_delay": 1                      # Delay between request calls
-        },
-    "paths": {
-            "input": "email_list.csv",              # Name of input file
-            "output": "output/output_result.csv"    # Output location for results file
-        },
-    "logging": {
-            "level": "INFO"                         # DEBUG | INFO | WARNING | ERROR
-        }
+    {
+        "api": {
+                "base_url": "https://free.intelx.io",   # API url used for calls
+                "timeout": 15,                          # Seconds per request
+                "max_retries": 5,                       # Max number of retry attempts in case of error
+                "backoff_factor": 2,                    # Delay between retry attempts
+                "request_delay": 1                      # Delay between request calls
+            },
+        "paths": {
+                "input": "email_list.csv",              # Name of input file
+                "output": "output/output_result.csv"    # Output location for results file
+            },
+        "logging": {
+                "level": "INFO"                         # DEBUG | INFO | WARNING | ERROR
+            }
+    }
 
 ## Running the Application:
 ### Running Locally
