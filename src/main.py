@@ -144,7 +144,7 @@ def main(argv=None) -> int:
     try:
         write_results_csv(results, output_path)
     except OSError as exc:
-        log.errro("Write failed: $s", exc)
+        log.error("Write failed: %s", exc)
         return 2
 
     print_summary(stats)

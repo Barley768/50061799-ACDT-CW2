@@ -20,5 +20,5 @@ RUN mkdir -p /app/output && chown appuser:appuser /app/output
 USER appuser
 
 # Default: dry-run (Runs with no API calls, not using IX_API_KEY)
-ENTRYPOINT [ "python", "src/main.py" ]
+ENTRYPOINT [ "python", "-u", "-m", "src.main" ]
 CMD ["--dry-run", "--input", "email_list.csv", "--output", "output/output_result.csv"]
