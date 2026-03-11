@@ -79,7 +79,7 @@ This application is designed with production use in mind, making use of docker c
     |              CLI (python -m src.main)               |
     │               Docker (docker run )                  |
     └────────────────────┬────────────────────────────────┘
-                        |
+                         |
     ┌─────────────────────────────────────────────────────┐
     |                   main.py                           |                    
     |   Handle Arguments - Loading Config - Logging       |
