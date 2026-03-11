@@ -126,6 +126,12 @@ Another API was considered for use, being Have I Been Pwned (HIBP). While this A
 it was decided that for future proofing, Intelligence X was preferred at this stage. 
 Ideally, both API's will be used to cross reference results and get a more robust search by making use of various independant searching APIs.
 
+### Extensible Design
+This application was designed to decouple the core logic from the API controller. By making use of the "search_email()" class, any future breach intelligence APIs/providers can be added without updating any of the existing logic. 
+By creating a new client class for the new API, implementing search_email(), when running this in main, we can pass through which API client should be used.
+By adding a --provider flag in main.py, at runtime users can decide if they want to scan via Intelligence X or another API. 
+No changes to any other files would be required.
+
 ## To get setup:
 1. Clone the latest master branch from the GitHub Repo: git clone https://github.com/Barley768/50061799-ACDT-CW2
 2. Create virtual environment:
@@ -137,22 +143,16 @@ Ideally, both API's will be used to cross reference results and get a more robus
 5. Replace the dummy IX_API_KEY in .env with your actual API key
 
 ## Configuration
-    {
-        "api": {
-                "base_url": "https://free.intelx.io",   # API url used for calls
-                "timeout": 15,                          # Seconds per request
-                "max_retries": 5,                       # Max number of retry attempts in case of error
-                "backoff_factor": 2,                    # Delay between retry attempts
-                "request_delay": 1                      # Delay between request calls
-            },
-        "paths": {
-                "input": "email_list.csv",              # Name of input file
-                "output": "output/output_result.csv"    # Output location for results file
-            },
-        "logging": {
-                "level": "INFO"                         # DEBUG | INFO | WARNING | ERROR
-            }
-    }
+| Setting        | Value                    | Description                                   |
+| -------------- |--------------------------| ----------------------------------------------|
+| base_url       | free.intelx.io           | API endpoint used for screening               |
+| timeout        | 15                       | Seconds per request                           |
+| max_retries    | 5                        | Max number of retry attempts in case of error |
+| backoff_factor | 2                        | Delay between retry attempts                  |
+| request_delay  | 1                        | Delay between request calls                   |
+| input          | email_list.csv           | Name of input file                            |
+| output         | output/output_result.csv | Output location for results file              |
+| logging.level  | INFO                     | DEBUG | INFO | WARNING | ERROR                |
 
 ## Running the Application:
 ### Running Locally
@@ -176,7 +176,7 @@ Examples:
         docker images
 5. Run the docker image.
         For dry run without output file, use:
-            docker run 50061799-acdt-cw2 --dry-run
+            docker run -v ${PWD}/output:/app/output 50061799-acdt-cw2 --dry-run
         
         for main run, you need to pass in an argument for your IntelligenceX API key, and an argument for an output folder. Below creates a folder "output" in whatever directory the terminal is currently in:
             docker run -e IX_API_KEY=<YOUR API KEY> -v ${PWD}/output:/app/output 50061799-acdt-cw2
@@ -196,11 +196,38 @@ Test Classes:
 - TestAPIClientRetry            - Tests API results for retry on 429 rate limiting, 403 authentication error raises APIError, timing out returns None
 - TestEndToEnd                  - Tests full process from reading input csv, checking results and writing to output csv
 
+### Test evidence
+Test evidence will be attached in .zip in txt format, with all tests passing on final execution
+
 ## Output Format
 Output is formatted as a csv with the following headers:
 - email_address
 - breached
 - site_where_breached
+
+### Analyst Summary
+Once the application is complete, a summary analysis will be printed in the terminal. Below is the example result:
+        ============================================================
+        ALC BREACH SCREENING - ANALYST SUMMARY
+        ============================================================
+        Total checked  : 11
+        Breached       : 4
+        Clean          : 4
+        Invalid        : 3
+        Breach rate    : 50.0%
+
+        Top 10 breach sources:
+        4  facebook.com-2025
+        2  twitter.com-2018
+        1  serebii.com-2012
+        1  github.com-2022
+        1  instagram.com-2024
+        1  tesco.co.uk-2017
+        1  nikon.com-2006
+        1  dnd3-5.wikidot.com-2026
+        1  foundryvtt.com-2025
+        1  foundryvtt.com-2026
+        ============================================================
 
 ## Limitations
 Within this project, we make use of the free "search" Intelligence X endpoint, which returns less structured, clean data as opposed to the premium "phonebook" endpoint.
@@ -231,6 +258,9 @@ ALC has the legal authority to be using and screening the email addresses includ
 ## Ethics and GDPR
 This application should only ever ben used to screen email addresses that the company ALC has legal reason to screen. This application should not be run against unauthorised email addresses.
 
+ALC has a lawful basis for processing this PII under the GDPR Article 6: "Lawfulness of processing".
+Under the GDPR Article 33, if there is a significant breach rate, ALC will have to notify the users within 72 hours.
+
 This application only processes the email addresses to minimise the PII (Personally Identifiable Information) being processed or stored.
 
 ALC should define a clear data retention policy in line with each country's data retention periods for which the company holds data from. This data should be held no longer than needed.
@@ -238,3 +268,7 @@ ALC should define a clear data retention policy in line with each country's data
 By using Intelligence X to screen email addresses, ALC is sharing PII with a third party, and should have a DPA (Data Processing Agreement) in place with Intelligence X that ALC customers are informed of.
 
 API keys should never be commited to version control or shared within any docker images. .env should be included within the .gitignore to avoid accidentally exposing API keys
+
+## License
+Copyright @ 2026 Neil Beattie. All rights reserved.
+Produced as coursework for my Advanced Cloud Development Technologies module at Belfast Metropolitan College.
