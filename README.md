@@ -207,27 +207,29 @@ Output is formatted as a csv with the following headers:
 
 ### Analyst Summary
 Once the application is complete, a summary analysis will be printed in the terminal. Below is the example result:
-        ============================================================
-        ALC BREACH SCREENING - ANALYST SUMMARY
-        ============================================================
-        Total checked  : 11
-        Breached       : 4
-        Clean          : 4
-        Invalid        : 3
-        Breach rate    : 50.0%
+```
+============================================================
+ALC BREACH SCREENING - ANALYST SUMMARY
+============================================================
+Total checked  : 11
+Breached       : 4
+Clean          : 4
+Invalid        : 3
+Breach rate    : 50.0%
 
-        Top 10 breach sources:
-        4  facebook.com-2025
-        2  twitter.com-2018
-        1  serebii.com-2012
-        1  github.com-2022
-        1  instagram.com-2024
-        1  tesco.co.uk-2017
-        1  nikon.com-2006
-        1  dnd3-5.wikidot.com-2026
-        1  foundryvtt.com-2025
-        1  foundryvtt.com-2026
-        ============================================================
+Top 10 breach sources:
+4  facebook.com-2025
+2  twitter.com-2018
+1  serebii.com-2012
+1  github.com-2022
+1  instagram.com-2024
+1  tesco.co.uk-2017
+1  nikon.com-2006
+1  dnd3-5.wikidot.com-2026
+1  foundryvtt.com-2025
+1  foundryvtt.com-2026
+============================================================
+```
 
 ## Limitations
 Within this project, we make use of the free "search" Intelligence X endpoint, which returns less structured, clean data as opposed to the premium "phonebook" endpoint.
