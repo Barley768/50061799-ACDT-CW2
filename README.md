@@ -1,4 +1,4 @@
-# Advanced Cloud Development Technologies Coursework 1
+# Advanced Cloud Development Technologies Coursework 2
 
 This project is being developed to meet the following criteria:
     
@@ -66,19 +66,83 @@ The work targets Level-6 performance by requiring justification of design decisi
 
 ## Application Description
 
+This is a python CLI (Command Line Interface) application developed for use by ALC (Antrim Logistics Company).
+The goal of this application is to screen ALC customer email addresses for any known data breaches they may have been a part of. 
+This application reads in a single "email_list.csv" file which holds the email addresses to be screened, and by using the Intelligence X "search" API endpoint, returns any known breach records and writes it to a "output_results.csv" file. A real time summary of the results is printed within the terminal as the application processes the email addresses within email_list.csv, and provides summary statistics once finished, including a count of emails screened, the rate of breaches, and top identified breach sources.
+
+This application is designed with production use in mind, making use of docker containerisation and GitHub CI pipeline for automated testing on commits to the source control repository.
+
+## Architecture
+
+    ┌─────────────────────────────────────────────────────┐
+    |                   Entry Points                      |
+    |              CLI (python -m src.main)               |
+    │               Docker (docker run )                  |
+    └────────────────────┬────────────────────────────────┘
+                        |
+    ┌─────────────────────────────────────────────────────┐
+    |                   main.py                           |                    
+    |   Handle Arguments - Loading Config - Logging       |
+    └───────┬──────────────────────────────┬──────────────┘
+            |                              |
+    ┌────────────────┐              ┌────────────────────┐
+    |   io_handler   |              |   breach_checker   |
+    |   read csv     |              |     Controller     |
+    |   write csv    |              |  Email Validation  |
+    └───────┬────────┘              └───────┬────────────┘
+            |                               |
+            |                               |
+            |                  ┌──────────────────────────┐     
+            |                  |     API Client Layer     |
+            |                  |                          |
+            |                  |    IntelligenceXClient   |
+            |                  |     (Live API Calls)     |
+            |                  |           OR             |
+            |                  |  example (dry-run/test)  |
+            |                  └────────────┬─────────────┘
+            |                               |
+    ┌────────────────┐              ┌────────────────────┐
+    | email_list.csv |              |   Intelligence X   |
+    |     (input)    |              |   Search API       |
+    └───────┬────────┘              |   free.intelx.io   |
+            |                       └────────────────────┘
+    ┌───────────────────┐               
+    | output_result.csv |
+    |     (output)      |
+    └───────────────────┘
 
 ## APIs Used:
 1. IntelligenceX Search API - https://help.intelx.io/docs/api/
 
 ## To get setup:
-1. Clone the Repo: git clone 
+1. Clone the latest master branch from the GitHub Repo: git clone https://github.com/Barley768/50061799-ACDT-CW2
 2. Create virtual environment:
         python -m venv .venv
         .venv\Scripts\activate
 3. Install dependencies: `pip install -r requirements.txt`
+4. Create a copy of the .env.example:
+        copy .env.example .env
+5. Replace the dummy IX_API_KEY in .env with your actual API key
 
-## To run the script:
-1. Navigate to the project root in terminal
+## Configuration
+    "api": {
+            "base_url": "https://free.intelx.io",   # API url used for calls
+            "timeout": 15,                          # Seconds per request
+            "max_retries": 5,                       # Max number of retry attempts in case of error
+            "backoff_factor": 2,                    # Delay between retry attempts
+            "request_delay": 1                      # Delay between request calls
+        },
+    "paths": {
+            "input": "email_list.csv",              # Name of input file
+            "output": "output/output_result.csv"    # Output location for results file
+        },
+    "logging": {
+            "level": "INFO"                         # DEBUG | INFO | WARNING | ERROR
+        }
+
+## Running the Application:
+### Running Locally
+1. Navigate to the project root in terminal (This is important for CSV and config paths within the code running from project root)
 2. Activate venv:
         .venv\Scripts\activate
 3. run main.py (pass argument --dry-run to test without using API credits)
@@ -88,3 +152,75 @@ Examples:
         python -m src.main --dry-run
 2. Run process using API credits:
         python -m src.main
+
+### Running via Docker:
+1. Ensure docker is installed on local machine
+2. Navigate to whatever folder you want the output saved to
+3. In terminal, run the following to load the image:
+        docker load -i 50061799-acdt-cw2.tar
+4. (OPTIONAL) To check loaded docker images, run the following:
+        docker images
+5. Run the docker image.
+        For dry run without output file, use:
+            docker run 50061799-acdt-cw2 --dry-run
+        
+        for main run, you need to pass in an argument for your IntelligenceX API key, and an argument for an output folder. Below creates a folder "output" in whatever directory the terminal is currently in:
+            docker run -e IX_API_KEY=<YOUR API KEY> -v ${PWD}/output:/app/output 50061799-acdt-cw2
+
+## Testing
+To run test scripts, use the following:
+        python -m unittest tests/test_bt.py -v
+
+### Test coverage
+Test Classes:
+- TestEmailValidation           - Tests valid and invalid email addresses
+- TestReadEmailCsv              - Tests reading csv files, checks for columns, blank rows, missing file, empty file
+- TestWriteResultsCsv           - Tests output csv files, checks for columns, separator
+- TestBreachCheckerHappyPath    - Tests API results, checks for breached results, clean results, empty results
+- TestBreachCheckerErrors       - Tests API error handling, checks for partial failures
+- TestSummaryStats              - Tests summary results, checks for breach rates, dividing by zero errors
+- TestAPIClientRetry            - Tests API results for retry on 429 rate limiting, 403 authentication error raises APIError, timing out returns None
+- TestEndToEnd                  - Tests full process from reading input csv, checking results and writing to output csv
+
+## Output Format
+Output is formatted as a csv with the following headers:
+- email_address
+- breached
+- site_where_breached
+
+## Limitations
+Within this project, we make use of the free "search" Intelligence X endpoint, which returns less structured, clean data as opposed to the premium "phonebook" endpoint.
+This project was originally planned around the usage of the phonebook endpoint, until issues were encountered when testing. As a result, we return a wider selection of data than exclusively breach data. These results should be treated as warning points requiring further analysis, and not an outright confirmation of a breach. 
+
+Using the free tier of Intelligence X, we have limited credits to use for API calls. This has been considered for by the use of request_delay, and the dry-run option for functionality testing, however large email lists input could use all available free credits for the current time period.
+
+Test data provided is entirely fictional and does not represent any real records
+
+There is currently no handling for any deduplication within the email_list.csv file, meaning if the same email address is provided multiple times, API calls will be wasted returning the same dataset additional times
+
+This tool exclusively checks against Intelligence X data, cross referencing multiple breach data sources should be considered for a final production application for higher accuracy in results
+
+## Assumptions
+This application assumes that the input file will be called "email_list.csv", and will have the one following header:
+- email
+
+The project is being executed from the project root directory, ensuring relative paths for Configuration and CSV files resolve without error
+
+IX_API_KEY is set correctly within .env, or passed through from an established environment variable when running on a live production environment. Without this API key, the application will exit unless explicitly running with the --dry-run arguement
+
+The application is being run on a machine with access to the internet to reach the free.intelx.io API
+
+python 3.11 or higher is installed for local machine runs, or docker is installed for running from the docker image
+
+ALC has the legal authority to be using and screening the email addresses included in the email_list.csv file
+
+## Ethics and GDPR
+This application should only ever ben used to screen email addresses that the company ALC has legal reason to screen. This application should not be run against unauthorised email addresses.
+
+This application only processes the email addresses to minimise the PII (Personally Identifiable Information) being processed or stored.
+
+ALC should define a clear data retention policy in line with each country's data retention periods for which the company holds data from. This data should be held no longer than needed.
+
+By using Intelligence X to screen email addresses, ALC is sharing PII with a third party, and should have a DPA (Data Processing Agreement) in place with Intelligence X that ALC customers are informed of.
+
+API keys should never be commited to version control or shared within any docker images. .env should be included within the .gitignore to avoid accidentally exposing API keys
